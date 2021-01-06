@@ -21,13 +21,15 @@ def read_xlrd(excel_file):
     data = xlrd.open_workbook(excel_file)
     table = data.sheet_by_index(0)
     data_lists = []
-    data_list = []
 
-    for j in range(2):
+    for j in range(3):
+
+        data_list = []
         for k in range(table.nrows):
             if k > 0:
-                # print(table.row_values(k)[1])
-                data_list.append(json.loads(table.row_values(k)[j+1]))
+                row = table.row_values(k)[j+1]
+                data_list.append(json.loads(row))
+        # print(data_list)
         data_lists.append(data_list)
 
     return data_lists
@@ -48,11 +50,11 @@ def get_table_2(data_list):
 
         score_range = [0, 0]
         if "H" in list(j.keys()):
-            score_range[0] = round(score + j["H"] * HN["H1"], 2)
-            score_range[1] = round(score + j["H"] * HN["H11"], 2)
+            score_range[0] = round(score + j["H"] * HN["H1"], 4)
+            score_range[1] = round(score + j["H"] * HN["H11"], 4)
         else:
-            score_range[0] = round(score, 2)
-            score_range[1] = round(score, 2)
+            score_range[0] = round(score, 4)
+            score_range[1] = round(score, 4)
 
         score_list.append(score_range)
 
@@ -149,7 +151,12 @@ def get_table_3(data_list):
     # print("p_h:", end='')
     # print(p_h)
 
-    return p_n, p_h
+    dict_ = dict()
+    for j in range(11):
+        h_n = 'H' + str(j + 1)
+        dict_[h_n] = p_n[j]
+    dict_["H"] = p_h
+    return dict_
 
 
 if __name__ == '__main__':
@@ -158,10 +165,11 @@ if __name__ == '__main__':
     # print(len(_data_list))
     # print(_data_list)
 
-    # _score_list = get_table_2(_data_list)
-    # print(_score_list)
-
+    _dict_list = []
     for i in _data_lists:
-        _p_n, _p_h = get_table_3(i)
-        print(_p_n)
-        print(_p_h)
+        _dict = get_table_3(i)
+        _dict_list.append(_dict)
+        # print(_dict)
+
+    _score_list = get_table_2(_dict_list)
+    print(_score_list)
