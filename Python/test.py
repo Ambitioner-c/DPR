@@ -4,32 +4,34 @@
 import xlrd
 import json
 
-# 期望
+# 效用
 HN = {"H1": -1.0, "H2": -0.8, "H3": -0.6, "H4": -0.4, "H5": -0.2,
       "H6": 0.0,
       "H7": 0.2, "H8": 0.4, "H9": 0.6, "H10": 0.8, "H11": 1.0}
 
+# 属性权重
 W = {"e1": 0.15, "e2": 0.12, "e3": 0.15, "e4": 0.1, "e5": 0.08, "e6": 0.08, "e7": 0.08, "e8": 0.1, "e9": 0.14}
 
 
-def read_xlrd(excel_file):
+def read_xlrd(excel_file, n):
     """
     读取Excel文件
-    :param excel_file:
+    :param excel_file: excel文件名
+    :param n: 两两比较的个数
     :return:
     """
     data = xlrd.open_workbook(excel_file)
+    # Sheet1
     table = data.sheet_by_index(0)
-    data_lists = []
 
-    for j in range(3):
+    data_lists = []
+    for j in range(n):
 
         data_list = []
         for k in range(table.nrows):
             if k > 0:
                 row = table.row_values(k)[j+1]
                 data_list.append(json.loads(row))
-        # print(data_list)
         data_lists.append(data_list)
 
     return data_lists
@@ -84,14 +86,6 @@ def get_table_3(data_list):
         m_h_i[q] = 1 - W[e_n]*sum_
         m_h_i_[q] = 1 - W[e_n]
         m_h_i__[q] = W[e_n]*(1-sum_)
-    # print("m_n_i:", end='')
-    # print(m_n_i)
-    # print("m_h_i:", end='')
-    # print(m_h_i)
-    # print("m_h_i_:", end='')
-    # print(m_h_i_)
-    # print("m_h_i__:", end='')
-    # print(m_h_i__)
 
     m_n = [0.0 for x in range(11)]
     m_h_ = 0.0
@@ -111,8 +105,6 @@ def get_table_3(data_list):
     for j in range(9):
         mul_2 *= (m_h_i_[j] + m_h_i__[j])
     _k = 1/(sum_ - (11 - 1)*mul_2)
-    # print("k:", end='')
-    # print(_k)
 
     # m_n
     for j in range(11):
@@ -122,15 +114,13 @@ def get_table_3(data_list):
             mul_1 *= m_n_i[j][k] + m_h_i_[k] + m_h_i__[k]
             mul_2 *= m_h_i_[k] + m_h_i__[k]
         m_n[j] = _k*(mul_1 - mul_2)
-    # print("m_n:", end='')
-    # print(m_n)
+
     # m_h_
     mul_ = 1.0
     for j in range(9):
         mul_ *= m_h_i_[j]
     m_h_ = _k*mul_
-    # print("m_h_:", end='')
-    # print(m_h_)
+
     # m_h__
     mul_1 = 1.0
     mul_2 = 1.0
@@ -138,18 +128,12 @@ def get_table_3(data_list):
         mul_1 *= m_h_i_[j] + m_h_i__[j]
         mul_2 *= m_h_i_[j]
     m_h__ = _k*(mul_1 - mul_2)
-    # print("m_h__:", end='')
-    # print(m_h__)
 
     p_n = [0.0 for x in range(11)]
     for j in range(11):
         p_n[j] = round(m_n[j]/(1-m_h_), 4)
-    # print("p_n:", end='')
-    # print(p_n)
 
     p_h = round(m_h__/(1-m_h_), 4)
-    # print("p_h:", end='')
-    # print(p_h)
 
     dict_ = dict()
     for j in range(11):
@@ -160,16 +144,24 @@ def get_table_3(data_list):
 
 
 if __name__ == '__main__':
-    _excel_file = '../Data/score.xlsx'
-    _data_lists = read_xlrd(_excel_file)
-    # print(len(_data_list))
-    # print(_data_list)
+    _excel_file = '../Data/paper_score.xlsx'
+    _data_lists = read_xlrd(_excel_file, 5)
+
+    _score_lists = []
+    for i in _data_lists:
+        # print(i)
+        _score_list = get_table_2(i)
+        _score_lists.append(_score_list)
+    print('table2:')
+    print(_score_lists)
 
     _dict_list = []
     for i in _data_lists:
         _dict = get_table_3(i)
         _dict_list.append(_dict)
-        # print(_dict)
+    print('table3')
+    print(_dict_list)
 
     _score_list = get_table_2(_dict_list)
+    print('table4')
     print(_score_list)
