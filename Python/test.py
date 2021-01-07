@@ -143,6 +143,34 @@ def get_table_3(data_list):
     return dict_
 
 
+def g(y, z, x):
+    return (y + z - (1 + x) * y * z) / (1 - x * y * z)
+
+
+def get_table_4(score_list, b):
+    table = [[[0.0, 0.0] for x in range(6)] for x in range(6)]
+    for j in range(len(score_list) - 1):
+        table[j][j+1] = score_list[j]
+        table[j+1][j] = [-table[j][j+1][1], -table[j][j+1][0]]
+
+    for j in range(len(score_list) - 2):
+        table[j][j+2] = [g(table[j][j+1][0], table[j+1][j+2][0], b), g(table[j][j+1][1], table[j+1][j+2][1], b)]
+        table[j+2][j] = [-table[j][j+2][1], -table[j][j+2][0]]
+    #
+    # for j in range(len(score_list) - 3):
+    #     table[j][j+3] = [g(table[j][j+2][0], table[j+1][j+3][0], b), g(table[j][j+2][1], table[j+1][j+3][1], b)]
+    #     table[j+3][j] = [-table[j][j+3][1], -table[j][j+3][0]]
+    #
+    # for j in range(len(score_list) - 4):
+    #     table[j][j+4] = [g(table[j][j+3][0], table[j+1][j+4][0], b), g(table[j][j+3][1], table[j+1][j+4][1], b)]
+    #     table[j+4][j] = [-table[j][j+4][1], -table[j][j+4][0]]
+    #
+    # for j in range(len(score_list) - 5):
+    #     table[j][j+5] = [g(table[j][j+4][0], table[j+1][j+5][0], b), g(table[j][j+4][1], table[j+1][j+6][1], b)]
+    #     table[j+5][j] = [-table[j][j+5][1], -table[j][j+5][0]]
+    print(table)
+
+
 if __name__ == '__main__':
     _excel_file = '../Data/paper_score.xlsx'
     _data_lists = read_xlrd(_excel_file, 5)
@@ -165,3 +193,6 @@ if __name__ == '__main__':
     _score_list = get_table_2(_dict_list)
     print('table4')
     print(_score_list)
+
+    print('table4')
+    get_table_4(_score_list, b=-1.2867)
